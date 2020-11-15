@@ -1,6 +1,6 @@
 # Problem Set 2, hangman.py
-# Name: 
-# Collaborators:
+# Name: Danilo Mizin
+# Collaborators: Sofia Piustonen
 # Time spent:
 
 # Hangman Game
