@@ -32,7 +32,6 @@ def load_words():
 
 wordlist = load_words()
 
-
 def choose_word(wordlist):
     """
     wordlist (list): list of words (strings)
@@ -51,17 +50,8 @@ def is_word_guessed(secret_word, letters_guessed):
     returns: boolean, True if all the letters of secret_word are in letters_guessed;
       False otherwise
     '''
-    counter = 0
-    flag = False
-    for letter_s in secret_word:
-        for letter_lg in letters_guessed:
-            if letter_s == letter_lg:
-                flag = True
-                break
-        if not flag:
-            counter += 1
-        flag = False
-    return counter
+    # FILL IN YOUR CODE HERE AND DELETE "pass"
+    pass
 
 
 def get_guessed_word(secret_word, letters_guessed):
@@ -71,13 +61,8 @@ def get_guessed_word(secret_word, letters_guessed):
     returns: string, comprised of letters, underscores (_), and spaces that represents
       which letters in secret_word have been guessed so far.
     '''
-    my_word=[]
-    for i in range(len(secret_word)):
-        if secret_word[i] in letters_guessed:
-             my_word.append(secret_word[i])
-        else:
-            my_word.append("_ ")
-    return "".join(my_word)
+    # FILL IN YOUR CODE HERE AND DELETE "pass"
+    pass
 
 
 def get_available_letters(letters_guessed):
@@ -86,14 +71,10 @@ def get_available_letters(letters_guessed):
     returns: string (of letters), comprised of letters that represents which letters have not
       yet been guessed.
     '''
-    if len(letters_guessed)==0:
-        x =string.ascii_lowercase
-        return x
-    else:
-        z =list(string.ascii_lowercase)
-        for letter in letters_guessed:
-            del z[z.index(letter.lower())]
-        return ''.join(z)
+    # FILL IN YOUR CODE HERE AND DELETE "pass"
+    pass
+    
+    
 
 
 def warnings(value_error):
