@@ -77,12 +77,10 @@ def get_available_letters(letters_guessed):
     pass
 
 
-def warnings(value_mistake):
+def warnings(value_mistake,warnings_point,guesses_point):
     """
     Subtract warnings point and output name of error
     """
-    global warnings_point
-    global guesses_point
     name_mistake=f"Oops! {value_mistake}"
     if warnings_point>0:
         warnings_point-=1
@@ -90,14 +88,13 @@ def warnings(value_mistake):
     else:
         guesses_point-= 1
         print("Oops! You have no warnings left, so you lose one guess:", end=' ')
+    return warnings_point,guesses_point
 
 
-def letter_in_word(secret_word,letter,letters_a):
+def letter_in_word(secret_word,letter,letters_a,letter_guessed,guesses_point):
     """
     Check if letter is word, else subtracts point
     """
-    global letter_guessed
-    global guesses_point
     letters_guessed.append(letter)
     if letter in secret_word:
         print("Good guess:", get_guessed_word(secret_word, letters_guessed))
@@ -107,17 +104,15 @@ def letter_in_word(secret_word,letter,letters_a):
         else:
             guesses_point -= 1
         print("Oops! That letter is not in my word:", get_guessed_word(secret_word, letters_guessed))
+    return letters_guessed,guesses_point
 
 
-def hangman(secret_word, request,letters_a,warnings_point):
+def hangman(secret_word, request,letters_a,warnings_point,letters_guessed,guesses_point):
     '''
     Game Hangman. "request" show hangman(classic) or hangman with hints.
     Print information for user, start loop, check user choose hangman or hangman with hints,
     Check input letter and call letter_in_word, check if user guessed word.
     '''
-    global letters_guessed
-    #global warnings_point
-    global guesses_point
     print("I am thinking of a word that is", len(secret_word), "letters long")
     print("You have", warnings_point, "warnings left")
     while guesses_point > 0:
@@ -130,13 +125,13 @@ def hangman(secret_word, request,letters_a,warnings_point):
             show_possible_matches(get_guessed_word(secret_word, letters_guessed))
         else:
             if letter not in string.ascii_letters or len(letter) != 1:
-                warnings("That is not a valid letter or you print more than one letter.")
+                warnings_point,guesses_point=warnings("That is not a valid letter or you print more than one letter.",warnings_point,guesses_point)
                 print(get_guessed_word(secret_word, letters_guessed))
             elif letter in letters_guessed:
-                warnings("You have already guessed that letter:")
+                warnings_point,guesses_point=warnings("You have already guessed that letter:",warnings_point,guesses_point)
                 print(get_guessed_word(secret_word, letters_guessed))
             else:
-                letter_in_word(secret_word, letter, letters_a)
+                letters_guessed, guesses_point=letter_in_word(secret_word, letter, letters_a,letters_guessed,guesses_point)
         if is_word_guessed(secret_word, letters_guessed) == 0:
             final_points = guesses_point * len(set(secret_word))
             print("------")
@@ -195,7 +190,7 @@ def start():
             else:
                 request=False
             secret_word = choose_word(wordlist)
-            hangman(secret_word, request, letters_a,warnings_point)
+            hangman(secret_word, request, letters_a,warnings_point,letters_guessed,guesses_point)
             break
         else:
             print("Oops! Your input is not correct")
