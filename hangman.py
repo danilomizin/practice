@@ -8,9 +8,6 @@ import random
 
 
 WORDLIST_FILENAME = "words.txt"
-guesses_point=6
-warnings_point=3
-letters_guessed=[]
 letters_a = frozenset("aeiou")
 
 
@@ -91,7 +88,7 @@ def warnings(value_mistake,warnings_point,guesses_point):
     return warnings_point,guesses_point
 
 
-def letter_in_word(secret_word,letter,letters_a,letter_guessed,guesses_point):
+def letter_in_word(secret_word,letter,letters_a,letter_guessed,guesses_point,letters_guessed):
     """
     Check if letter is word, else subtracts point
     """
@@ -131,7 +128,7 @@ def hangman(secret_word, request,letters_a,warnings_point,letters_guessed,guesse
                 warnings_point,guesses_point=warnings("You have already guessed that letter:",warnings_point,guesses_point)
                 print(get_guessed_word(secret_word, letters_guessed))
             else:
-                letters_guessed, guesses_point=letter_in_word(secret_word, letter, letters_a,letters_guessed,guesses_point)
+                letters_guessed, guesses_point=letter_in_word(secret_word, letter, letters_a,letters_guessed,guesses_point,letters_guessed)
         if is_word_guessed(secret_word, letters_guessed) == 0:
             final_points = guesses_point * len(set(secret_word))
             print("------")
@@ -171,7 +168,6 @@ def show_possible_matches(my_word):
              at which that letter occurs in the secret word are revealed.
              Therefore, the hidden letter(_ ) cannot be one of the letters in the word
              that has already been revealed.
-
     '''
     list_with_words = []
     for word in list(wordlist):
@@ -197,4 +193,7 @@ def start():
 
 
 if __name__ == "__main__":
+    guesses_point = 6
+    warnings_point = 3
+    letters_guessed = []
     start()
