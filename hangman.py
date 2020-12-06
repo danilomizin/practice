@@ -8,7 +8,7 @@ import random
 
 
 WORDLIST_FILENAME = "words.txt"
-letters_a = frozenset("aeiou")
+list_vowels = frozenset("aeiou")
 
 
 def load_words():
@@ -74,21 +74,21 @@ def get_available_letters(letters_guessed):
     pass
 
 
-def warnings(value_mistake,warnings_point,guesses_point):
+def warnings(value_mistake, warnings_point, guesses_point):
     """
     Subtract warnings point and output name of error
     """
-    name_mistake=f"Oops! {value_mistake}"
-    if warnings_point>0:
-        warnings_point-=1
-        print(name_mistake,"\nYou have", warnings_point, "warnings left:",end=" ")
+    name_mistake = f"Oops! {value_mistake}"
+    if warnings_point > 0:
+        warnings_point -= 1
+        print(name_mistake, "\nYou have", warnings_point, "warnings left:", end=" ")
     else:
-        guesses_point-= 1
+        guesses_point -= 1
         print("Oops! You have no warnings left, so you lose one guess:", end=' ')
-    return warnings_point,guesses_point
+    return warnings_point, guesses_point
 
 
-def letter_in_word(secret_word,letter,letters_a,letter_guessed,guesses_point,letters_guessed):
+def letter_in_word(secret_word, letter, list_vowels, letter_guessed, guesses_point, letters_guessed):
     """
     Check if letter is word, else subtracts point
     """
@@ -96,15 +96,15 @@ def letter_in_word(secret_word,letter,letters_a,letter_guessed,guesses_point,let
     if letter in secret_word:
         print("Good guess:", get_guessed_word(secret_word, letters_guessed))
     else:
-        if letter in letters_a:
+        if letter in list_vowels:
             guesses_point -= 2
         else:
             guesses_point -= 1
         print("Oops! That letter is not in my word:", get_guessed_word(secret_word, letters_guessed))
-    return letters_guessed,guesses_point
+    return letters_guessed, guesses_point
 
 
-def hangman(secret_word, request,letters_a,warnings_point,letters_guessed,guesses_point):
+def hangman(secret_word, request, list_vowels, warnings_point, letters_guessed, guesses_point):
     '''
     Game Hangman. "request" show hangman(classic) or hangman with hints.
     Print information for user, start loop, check user choose hangman or hangman with hints,
@@ -118,28 +118,29 @@ def hangman(secret_word, request,letters_a,warnings_point,letters_guessed,guesse
         print("Available letters:", end=" ")
         get_available_letters(letters_guessed)
         letter = input("Please guess a letter:")
-        if request is True and letter=="*":
+        if request is True and letter == "*":
             show_possible_matches(get_guessed_word(secret_word, letters_guessed))
         else:
             if letter not in string.ascii_letters or len(letter) != 1:
-                warnings_point,guesses_point=warnings("That is not a valid letter or you print more than one letter.",warnings_point,guesses_point)
+                warnings_point, guesses_point = warnings("That is not a valid letter or you print more than one letter.", warnings_point, guesses_point)
                 print(get_guessed_word(secret_word, letters_guessed))
             elif letter in letters_guessed:
-                warnings_point,guesses_point=warnings("You have already guessed that letter:",warnings_point,guesses_point)
+                warnings_point, guesses_point = warnings("You have already guessed that letter:", warnings_point, guesses_point)
                 print(get_guessed_word(secret_word, letters_guessed))
             else:
-                letters_guessed, guesses_point=letter_in_word(secret_word, letter, letters_a,letters_guessed,guesses_point,letters_guessed)
+                letters_guessed, guesses_point=letter_in_word(secret_word, letter, list_vowels, letters_guessed, guesses_point, letters_guessed)
         if is_word_guessed(secret_word, letters_guessed) == 0:
-            final_points = guesses_point * len(set(secret_word))
+            final_points = guesses_point*len(set(secret_word))
             print("------")
             print("Congratulations, you won!")
-            print("Word:",secret_word)
+            print("Word:", secret_word)
             print("Your total score for this game is:", final_points)
             guesses_point = -1
         elif is_word_guessed(secret_word, letters_guessed) != 0 and guesses_point <= 0:
             print("------")
             print("Sorry, you ran out of guessed. The word was", secret_word)
             break
+
 
 def match_with_gaps(my_word, other_word):
     '''
@@ -171,7 +172,7 @@ def show_possible_matches(my_word):
     '''
     list_with_words = []
     for word in list(wordlist):
-        if match_with_gaps(my_word, word)== True:
+        if match_with_gaps(my_word, word) is True:
             list_with_words.append(word)
     print(" ".join(list_with_words))
 
@@ -179,14 +180,14 @@ def show_possible_matches(my_word):
 def start():
     print("Welcome to the game Hangman!\nDo you want play hangman (classic) or hangman with hints?")
     while type:
-        request = input("if you want to play hangman (classic) input 'classic', play hangman with hints input 'hints':").replace(" ","")
+        request = input("if you want to play hangman (classic) input 'classic', play hangman with hints input 'hints':").replace(" ", "")
         if request == "classic" or request == "hints":
-            if request=='hints':
-                request=True
+            if request == 'hints':
+                request = True
             else:
-                request=False
+                request = False
             secret_word = choose_word(wordlist)
-            hangman(secret_word, request, letters_a,warnings_point,letters_guessed,guesses_point)
+            hangman(secret_word, request, list_vowels, warnings_point, letters_guessed, guesses_point)
             break
         else:
             print("Oops! Your input is not correct")
