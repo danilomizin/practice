@@ -192,7 +192,7 @@ def show_possible_matches(my_word):
     for word in list(wordlist):
         if match_with_gaps(my_word, word) is True:
             list_with_words.append(word)
-    print(" ".join(list_with_words))
+    print("Possible word matches are:", " ".join(list_with_words))
 
 
 def start(guesses_point, warnings_point, letters_guessed, count_star):
