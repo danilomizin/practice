@@ -8,7 +8,7 @@ import random
 
 
 WORDLIST_FILENAME = "words.txt"
-list_vowels = frozenset("aeiou")
+LIST_VOWELS = frozenset("aeiou")
 
 
 def load_words():
@@ -53,6 +53,7 @@ def is_word_guessed(secret_word, letters_guessed):
     # FILL IN YOUR CODE HERE AND DELETE "pass"
     pass
 
+
 def get_guessed_word(secret_word, letters_guessed):
     '''
     secret_word: string, the word the user is guessing
@@ -88,6 +89,10 @@ def warnings(value_mistake, warnings_point, guesses_point):
     return warnings_point, guesses_point
 
 
+def check_star_30(count, secret_word, letters_guessed):
+    pass
+
+
 def letter_in_word(secret_word, letter, list_vowels, letter_guessed, guesses_point, letters_guessed):
     """
     Check if letter is word, else subtracts point
@@ -104,7 +109,16 @@ def letter_in_word(secret_word, letter, list_vowels, letter_guessed, guesses_poi
     return letters_guessed, guesses_point
 
 
-def hangman(secret_word, request, list_vowels, warnings_point, letters_guessed, guesses_point):
+def classic_input(count_star, warnings_point, guesses_point):
+    if count_star != 0:
+        warnings_point, guesses_point = warnings("you are playing classic hangman", warnings_point, guesses_point)
+    else:
+        print("OOps, you are playing classic hangman:", end=" ")
+        count_star += 1
+    return warnings_point, guesses_point, count_star
+
+
+def hangman(secret_word, request, list_vowels, warnings_point, letters_guessed, guesses_point, count_star):
     '''
     Game Hangman. "request" show hangman(classic) or hangman with hints.
     Print information for user, start loop, check user choose hangman or hangman with hints,
@@ -118,28 +132,32 @@ def hangman(secret_word, request, list_vowels, warnings_point, letters_guessed, 
         print("Available letters:", end=" ")
         get_available_letters(letters_guessed)
         letter = input("Please guess a letter:")
-        if request is True and letter == "*":
-            show_possible_matches(get_guessed_word(secret_word, letters_guessed))
+        if request == "hints" and letter == "*":
+            check_star_30(count_star, secret_word, letters_guessed)
+            count_star += 1
         else:
-            if letter not in string.ascii_letters or len(letter) != 1:
+            if letter == "*":
+                warnings_point, guesses_point, count_star = classic_input(count_star, warnings_point, guesses_point)
+                print(get_guessed_word(secret_word, letters_guessed))
+            elif letter not in string.ascii_letters or len(letter) != 1:
                 warnings_point, guesses_point = warnings("That is not a valid letter or you print more than one letter.", warnings_point, guesses_point)
                 print(get_guessed_word(secret_word, letters_guessed))
             elif letter in letters_guessed:
                 warnings_point, guesses_point = warnings("You have already guessed that letter:", warnings_point, guesses_point)
                 print(get_guessed_word(secret_word, letters_guessed))
             else:
-                letters_guessed, guesses_point=letter_in_word(secret_word, letter, list_vowels, letters_guessed, guesses_point, letters_guessed)
-        if is_word_guessed(secret_word, letters_guessed) == 0:
-            final_points = guesses_point*len(set(secret_word))
-            print("------")
-            print("Congratulations, you won!")
-            print("Word:", secret_word)
-            print("Your total score for this game is:", final_points)
-            guesses_point = -1
-        elif is_word_guessed(secret_word, letters_guessed) != 0 and guesses_point <= 0:
-            print("------")
-            print("Sorry, you ran out of guessed. The word was", secret_word)
+                letters_guessed, guesses_point = letter_in_word(secret_word, letter, LIST_VOWELS, letters_guessed, guesses_point, letters_guessed)
+        if is_word_guessed(secret_word, letters_guessed) == 0 or guesses_point <= 0:
             break
+    if is_word_guessed(secret_word, letters_guessed) == 0:
+        final_points = guesses_point*len(set(secret_word))
+        print("------")
+        print("Congratulations, you won!")
+        print("Word:", secret_word)
+        print("Your total score for this game is:", final_points)
+    elif is_word_guessed(secret_word, letters_guessed) != 0 and guesses_point <= 0:
+        print("------")
+        print("Sorry, you ran out of guessed. The word was", secret_word)
 
 
 def match_with_gaps(my_word, other_word):
@@ -151,10 +169,10 @@ def match_with_gaps(my_word, other_word):
         _ , and my_word and other_word are of the same length;
         False otherwise:
     '''
-    guesses_word = my_word.replace(" ", "")
-    if len(guesses_word) == len(other_word):
-        for i in range(len(guesses_word)):
-            if guesses_word[i] != '_' and guesses_word[i] != other_word[i]:
+    my_word = my_word.replace(" ", "")
+    if len(my_word) == len(other_word):
+        for i in range(len(my_word)):
+            if (my_word[i] != '_' and my_word[i] != other_word[i]) or (my_word[i] == "_" and other_word[i] in my_word):
                 return False
         return True
     else:
@@ -177,24 +195,21 @@ def show_possible_matches(my_word):
     print(" ".join(list_with_words))
 
 
-def start():
+def start(guesses_point, warnings_point, letters_guessed, count_star):
     print("Welcome to the game Hangman!\nDo you want play hangman (classic) or hangman with hints?")
     while type:
         request = input("if you want to play hangman (classic) input 'classic', play hangman with hints input 'hints':").replace(" ", "")
         if request == "classic" or request == "hints":
-            if request == 'hints':
-                request = True
-            else:
-                request = False
             secret_word = choose_word(wordlist)
-            hangman(secret_word, request, list_vowels, warnings_point, letters_guessed, guesses_point)
+            hangman(secret_word, request, LIST_VOWELS, warnings_point, letters_guessed, guesses_point, count_star)
             break
         else:
             print("Oops! Your input is not correct")
 
 
 if __name__ == "__main__":
+    count_star = 0
     guesses_point = 6
     warnings_point = 3
     letters_guessed = []
-    start()
+    start(guesses_point, warnings_point, letters_guessed, count_star)
