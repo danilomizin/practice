@@ -195,7 +195,11 @@ def show_possible_matches(my_word):
     print("Possible word matches are:", " ".join(list_with_words))
 
 
-def start(guesses_point, warnings_point, letters_guessed, count_star):
+def start(LIST_VOWELS):
+    count_star = 0
+    guesses_point = 6
+    warnings_point = 3
+    letters_guessed = []
     print("Welcome to the game Hangman!\nDo you want play hangman (classic) or hangman with hints?")
     while type:
         request = input("if you want to play hangman (classic) input 'classic', play hangman with hints input 'hints':").replace(" ", "")
@@ -208,8 +212,4 @@ def start(guesses_point, warnings_point, letters_guessed, count_star):
 
 
 if __name__ == "__main__":
-    count_star = 0
-    guesses_point = 6
-    warnings_point = 3
-    letters_guessed = []
-    start(guesses_point, warnings_point, letters_guessed, count_star)
+    start(LIST_VOWELS)
