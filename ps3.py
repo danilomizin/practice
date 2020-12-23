@@ -10,6 +10,7 @@
 import math
 import random
 import string
+import re
 
 VOWELS = 'aeiou'
 CONSONANTS = 'bcdfghjklmnpqrstvwxyz'
@@ -114,18 +115,20 @@ def update_hand(hand, word):
     return new_hand
 
 
-def is_valid_word(word, hand, word_list, number):
+def is_valid_word(word, hand, word_list):
     """
     Returns True if word is in the word_list and is entirely
     composed of letters in the hand. Otherwise, returns False.
     Does not mutate hand or word_list.
     """
     word = word.lower()
-    if "*" in word and number < len(VOWELS):
-        if word.replace("*", VOWELS[number]) not in word_list:
-            is_valid_word(word, hand, word_list, number + 1)
+    if "*" in word:
+        word = word.replace("*", f"[{VOWELS}]")
+        for word_g in word_list:
+            if re.fullmatch(word, word_g) is not None:
+                return True
         else:
-            return True
+            return False
     elif word in word_list:
         for letter in word:
             if letter not in hand or word.count(letter) > hand[letter]:
@@ -134,6 +137,9 @@ def is_valid_word(word, hand, word_list, number):
             return True
     else:
         return False
+
+
+
 
 
 def calculate_handlen(hand):
@@ -174,7 +180,7 @@ def play_hand(hand, word_list, count_points):
         print("Current Hand:", end=" ")
         display_hand(hand)
         user_word = input("Enter word, or “!!” to indicate that you are finished:")
-        if is_valid_word(user_word, hand, word_list, 0):
+        if is_valid_word(user_word, hand, word_list):
             count_points += get_word_score(user_word, calculate_handlen(hand))
             print(f"{user_word} earned {str(get_word_score(user_word, calculate_handlen(hand)))} ."
                   f" Total:{count_points} points")
