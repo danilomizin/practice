@@ -47,9 +47,6 @@ def get_frequency_dict(sequence):
     Returns a dictionary where the keys are elements of the sequence
     and the values are integer counts, for the number of times that
     an element is repeated in the sequence.
-
-    sequence: string or list
-    return: dictionary
     """
 
     # freqs: dictionary (element_type -> int)
@@ -63,44 +60,16 @@ def get_word_score(word, n):
     """
     Returns the score for a word. Assumes the word is a
     valid word.
-
-    You may assume that the input word is always either a string of letters,
-    or the empty string "". You may not assume that the string will only contain
-    lowercase letters, so you will have to handle uppercase and mixed case strings
-    appropriately.
-
-	The score for a word is the product of two components:
-
-	The first component is the sum of the points for letters in the word.
-	The second component is the larger of:
-            1, or
-            7*wordlen - 3*(n-wordlen), where wordlen is the length of the word
-            and n is the hand length when the word was played
-
-	Letters are scored as in Scrabble; A is worth 1, B is
-	worth 3, C is worth 3, D is worth 2, E is worth 1, and so on.
-
-    word: string
-    n: int >= 0
-    returns: int >= 0
     """
     count = 0
-    for litter in word.lower():
-        count += SCRABBLE_LETTER_VALUES[litter]
+    for letter in word.lower():
+        count += SCRABBLE_LETTER_VALUES[letter]
     return count * max(1, (7 * len(word) - 3 * (n - len(word))))
 
 
 def display_hand(hand):
     """
     Displays the letters currently in the hand.
-
-    For example:
-       display_hand({'a':1, 'x':2, 'l':3, 'e':1})
-    Should print out something like:
-       a x x l l l e
-    The order of the letters is unimportant.
-
-    hand: dictionary (string -> int)
     """
 
     for letter in hand.keys():
@@ -114,13 +83,6 @@ def deal_hand(n):
     Returns a random hand containing n lowercase letters.
     ceil(n/3) letters in the hand should be VOWELS (note,
     ceil(n/3) means the smallest integer not less than n/3).
-
-    Hands are represented as dictionaries. The keys are
-    letters and the values are the number of times the
-    particular letter is repeated in that hand.
-
-    n: int >= 0
-    returns: dictionary (string -> int)
     """
 
     hand = {}
@@ -133,59 +95,40 @@ def deal_hand(n):
     for i in range(num_vowels, n):
         x = random.choice(CONSONANTS)
         hand[x] = hand.get(x, 0) + 1
-    while True:
-        litter = random.choice(VOWELS)
-        if litter in hand.keys() and hand[litter] == 1:
-            hand["*"] = hand.pop(litter)
+    hand["*"] = 1
+    for letter in hand:
+        if letter in VOWELS and hand[letter] == 1:
+            del hand[letter]
             return hand
 
 
 def update_hand(hand, word):
     """
-    Does NOT assume that hand contains every letter in word at least as
-    many times as the letter appears in word. Letters in word that don't
-    appear in hand should be ignored. Letters that appear in word more times
-    than in hand should never result in a negative count; instead, set the
-    count in the returned hand to 0 (or remove the letter from the
-    dictionary, depending on how your code is structured).
-
     Updates the hand: uses up the letters in the given word
     and returns the new hand, without those letters in it.
-
-    Has no side effects: does not modify hand.
-
-    word: string
-    hand: dictionary (string -> int)
-    returns: dictionary (string -> int)
     """
     new_hand = hand.copy()
-    for litter in word.lower():
-        if litter in new_hand.keys() and new_hand[litter] > 0:
-            new_hand[litter] -= 1
+    for letter in word.lower():
+        if letter in new_hand and new_hand[letter] > 0:
+            new_hand[letter] -= 1
     return new_hand
 
 
-def is_valid_word(word, hand, word_list):
+def is_valid_word(word, hand, word_list, number):
     """
     Returns True if word is in the word_list and is entirely
     composed of letters in the hand. Otherwise, returns False.
     Does not mutate hand or word_list.
-
-    word: string
-    hand: dictionary (string -> int)
-    word_list: list of lowercase strings
-    returns: boolean
     """
     word = word.lower()
-    if "*" in word:
-        for vowel in VOWELS:
-            if word.replace("*", vowel) in word_list:
-                return True
+    if "*" in word and number < len(VOWELS):
+        if word.replace("*", VOWELS[number]) not in word_list:
+            is_valid_word(word, hand, word_list, number + 1)
         else:
-            return False
+            return True
     elif word in word_list:
-        for litter in word:
-            if (litter not in hand.keys()) or word.count(litter) > hand[litter]:
+        for letter in word:
+            if letter not in hand or word.count(letter) > hand[letter]:
                 return False
         else:
             return True
@@ -196,9 +139,6 @@ def is_valid_word(word, hand, word_list):
 def calculate_handlen(hand):
     """
     Returns the length (number of letters) in the current hand.
-
-    hand: dictionary (string-> int)
-    returns: integer
     """
     count_letter = 0
     for letter in hand.keys():
@@ -229,26 +169,21 @@ def play_hand(hand, word_list, count_points):
     * The hand finishes when there are no more unused letters.
       The user can also finish playing the hand by inputing two
       exclamation points (the string '!!') instead of a word.
-
-    hand: dictionary (string -> int)
-    word_list: list of lowercase strings
-    returns: the total score for the hand
-
     """
-    if calculate_handlen(hand) != 0:
+    while calculate_handlen(hand) != 0:
         print("Current Hand:", end=" ")
         display_hand(hand)
-        user_word = str(input("Enter word, or “!!” to indicate that you are finished:"))
-        if is_valid_word(user_word, hand, word_list):
+        user_word = input("Enter word, or “!!” to indicate that you are finished:")
+        if is_valid_word(user_word, hand, word_list, 0):
             count_points += get_word_score(user_word, calculate_handlen(hand))
-            print(user_word, "earned", str(get_word_score(user_word, calculate_handlen(hand))) + ".", " Total:",
-                  count_points, "points")
+            print(f"{user_word} earned {str(get_word_score(user_word, calculate_handlen(hand)))} ."
+                  f" Total:{count_points} points")
             print(" ")
         elif user_word == "!!":
             return count_points
         else:
-            print("This is not valid word. Please choose another word", "\n")
-        return play_hand(update_hand(hand, user_word), word_list, count_points)
+            print("This is not valid word. Please choose another word")
+        hand = update_hand(hand, user_word)
     else:
         return count_points
 
@@ -263,30 +198,21 @@ def substitute_hand(hand, letter):
     If user provide a letter not in the hand, the hand should be the same.
 
     Has no side effects: does not mutate hand.
-
-    For example:
-        substitute_hand({'h':1, 'e':1, 'l':2, 'o':1}, 'l')
-    might return:
-        {'h':1, 'e':1, 'o':1, 'x':2} -> if the new letter is 'x'
-    The new letter should not be 'h', 'e', 'l', or 'o' since those letters were
-    already in the hand.
-
-    hand: dictionary (string -> int)
-    letter: string
-    returns: dictionary (string -> int)
     """
-    type_letter = ""
-    if letter in hand.keys():
+    if letter in hand:
         new_hand = hand.copy()
         if letter in VOWELS:
-            type_letter = VOWELS
+            while True:
+                new_letter = random.choice(VOWELS)
+                if new_letter not in hand.keys():
+                    new_hand[new_letter] = new_hand.pop(letter)
+                    return new_hand
         elif letter in CONSONANTS:
-            type_letter = CONSONANTS
-        while True:
-            new_letter = random.choice(type_letter)
-            if new_letter not in hand.keys():
-                new_hand[new_letter] = new_hand.pop(letter)
-                return new_hand
+            while True:
+                new_letter = random.choice(CONSONANTS)
+                if new_letter not in hand.keys():
+                    new_hand[new_letter] = new_hand.pop(letter)
+                    return new_hand
     return hand
 
 
@@ -317,8 +243,6 @@ def play_game(word_list):
                     a letter - you must play whatever hand you just had.
 
     * Returns the total score for the series of hands
-
-    word_list: list of lowercase strings
     """
     count_final_points = 0
     number_of_hands = int(input("Enter total number of hands:"))
@@ -333,8 +257,8 @@ def play_game(word_list):
         print(" ")
         count_of_hand = play_hand(hand, word_list, 0)
         count_final_points += count_of_hand
-        print("Total score for this hand:", count_of_hand, "\n------")
-
+        print("Total score for this hand:", count_of_hand)
+        print("------")
         number_of_hands -= 1
 
     print("Total score over all hands:", end=" ")
